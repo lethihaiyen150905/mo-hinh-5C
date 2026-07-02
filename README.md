@@ -1,31 +1,50 @@
-# 📊 Ứng dụng Học Máy Đánh giá Rủi ro Khách hàng (Mô hình 5C)
+# Ứng dụng Streamlit dự báo rủi ro khách hàng
 
-Ứng dụng web tác nghiệp này giúp tự động hóa quy trình phân tích và chấm điểm tín dụng dựa trên cấu trúc mô hình **5C (Character - Capacity - Condition - Capital - Collateral)** truyền thống kết hợp với thuật toán học máy **Hồi quy Logistic (Logistic Regression)**. 
+Ứng dụng này được chuyển từ notebook `qtrr.ipynb`. Notebook sử dụng mô hình **Logistic Regression** để phân loại biến mục tiêu `PD` dựa trên 24 biến đầu vào:
 
-Hệ thống được phát triển trực tiếp từ kịch bản phân tích dữ liệu nghiên cứu trong Notebook huấn luyện máy học gốc.
+`TC1, TC2, TC3, TC4, TC5, NL1, NL2, NL3, NL4, DK1, DK2, DK3, DK4, DK5, V1, V2, V3, V4, V5, V6, TS1, TS2, TS3, TS4`.
 
-## 🛠️ Tính năng chính ứng dụng
-- **Cấu hình tham số học máy động:** Tinh chỉnh trực tiếp tỷ lệ phân chia tập học/kiểm định và hệ số regularization $C$ của mô hình hồi quy ngay trên giao diện Sidebar.
-- **Thống kê tổng quan tự động:** Tổng hợp phân phối, thông số phương sai, giá trị trung vị của toàn bộ 24 tiêu chí đặc trưng đầu vào.
-- **Trực quan hóa đồ họa tương tác:** Vẽ biểu đồ tần suất Histogram phân tách trực quan dựa trên nền tảng thư viện đồ họa Plotly cao cấp.
-- **Vận hành tác nghiệp linh hoạt:** - Chế độ nhập liệu đơn lẻ: Nhập nhanh điểm chấm hồ sơ qua các thanh trượt phân bổ khoa học theo cấu trúc nghiệp vụ 5C để nhận phản hồi xác suất rủi ro tức thì.
-  - Chế độ dự báo hàng loạt: Cho phép nạp tệp danh sách hồ sơ khách hàng mới để chấm điểm đồng thời và hỗ trợ xuất báo cáo định dạng CSV Excel.
+Notebook không dùng scaler, encoder hoặc bước tạo biến phái sinh, nên app giữ nguyên các biến số đầu vào theo dữ liệu mẫu.
 
-## 📁 Cấu trúc dữ liệu đầu vào chuẩn hóa
-Tệp dữ liệu nạp vào hệ thống để chạy phân tích cần đảm bảo tối thiểu có **24 trường thuộc tính đánh giá từ thang điểm 1 đến 5** và 1 cột mục tiêu phân lớp nhãn nhị phân:
-- **TC1 đến TC5**: Các chỉ số đánh giá về Tư cách (Character) của khách hàng.
-- **NL1 đến NL4**: Các chỉ số đo lường Năng lực hoạt động (Capacity).
-- **DK1 đến DK5**: Các tiêu chí đo lường Điều kiện kinh doanh kinh tế vĩ mô (Conditions).
-- **V1 đến V6**: Nhóm chỉ số cấu trúc Vốn tự có nội tại (Capital).
-- **TS1 đến TS4**: Nhóm thuộc tính giá trị pháp lý Tài sản đảm bảo (Collateral).
-- **PD (Biến mục tiêu)**: Nhãn trạng thái hồ sơ thực tế (`0` - Hồ sơ an toàn, `1` - Hồ sơ phát sinh rủi ro tiềm ẩn).
+## Cài đặt
 
-## 🚀 Hướng dẫn triển khai cục bộ
-
-### Bước 1: Sao chép mã nguồn và chuẩn bị môi trường máy trạm
-Đảm bảo bạn đã cài đặt Python phiên bản từ 3.9 đến 3.12 trên hệ thống của mình.
-
-### Bước 2: Cài đặt gói thư viện phụ thuộc bắt buộc
-Di chuyển Terminal/Command Prompt vào thư mục chứa mã nguồn và thực thi câu lệnh:
 ```bash
 pip install -r requirements.txt
+```
+
+## Chạy ứng dụng
+
+```bash
+streamlit run app.py
+```
+
+## Cấu trúc dữ liệu đầu vào
+
+File dữ liệu nên ở định dạng `.csv`, `.xlsx` hoặc `.xls`.
+
+Các cột bắt buộc để huấn luyện:
+
+| Cột | Vai trò |
+|---|---|
+| `TC1` đến `TC5` | Biến đầu vào |
+| `NL1` đến `NL4` | Biến đầu vào |
+| `DK1` đến `DK5` | Biến đầu vào |
+| `V1` đến `V6` | Biến đầu vào |
+| `TS1` đến `TS4` | Biến đầu vào |
+| `PD` | Biến mục tiêu |
+
+File mẫu `5c.csv` có 150 dòng và 27 cột. Ngoài các cột dùng trong mô hình, file còn có `Dấu thời gian` và `NN`; hai cột này không được notebook đưa vào mô hình.
+
+## Các tab trong ứng dụng
+
+1. **Tổng quan dữ liệu**: xem số dòng, số cột, dung lượng file, dữ liệu thô và thống kê mô tả các biến mô hình.
+2. **Trực quan hóa dữ liệu**: vẽ 4 biểu đồ cân đối, ưu tiên biến mục tiêu `PD`.
+3. **Kết quả huấn luyện & kiểm định mô hình**: hiển thị Accuracy, Precision, Recall, F1, ROC-AUC, ma trận nhầm lẫn, classification report và bảng dự báo tập kiểm định.
+4. **Sử dụng mô hình**: dự báo bằng cách nhập trực tiếp từng biến hoặc tải file dự báo hàng loạt.
+
+## Ghi chú kỹ thuật
+
+- Notebook gốc dùng `train_test_split(test_size=0.2, random_state=23)` và `LogisticRegression()` mặc định.
+- App cho phép chỉnh `test_size`, `random_state`, `C`, `max_iter`, `solver`; giá trị mặc định bám theo notebook/scikit-learn.
+- Mô hình chỉ được huấn luyện khi bấm nút ở sidebar. Kết quả được lưu trong `st.session_state` để không train lại khi chuyển tab.
+- Khuyến nghị dùng Streamlit bản mới (`>=1.55`) để hỗ trợ tốt layout, container động và trải nghiệm giao diện hiện đại.
